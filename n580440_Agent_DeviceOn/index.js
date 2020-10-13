@@ -1,4 +1,11 @@
 'use strict';
+const regex = RegExp('Mute Switch');////////EVENT///////////////////
+const strUser = 'dylan.changs@gmail.com'		//Account
+const strPasswod = 'Wisepaas1/'					//Password
+const strPortal = 'deviceon.wise-paas.com'	//Portal
+const strLanguage = 'en-US'	
+
+
 //require('dotenv').config();
 const path = require('path');
 global.g_svrRoot = path.resolve(__dirname);
@@ -6,41 +13,41 @@ global.g_svrRoot = path.resolve(__dirname);
 const WebSocket = require('ws');
 const btoa = require('btoa');
 const axios = require('axios');
-var strUser = 'dylan.changs@gmail.com'		//Account
-var strPasswod = 'Wisepaas1/'					//Password
-var strPortal = 'deviceon.wise-paas.com'	//Portal
-var strLanguage = 'en-US'					//Content language
-//en-US
-var strURL = 'wss://' + strPortal + '/event/' + strLanguage + '/' + btoa(strUser + ":" + strPasswod)
-var oWS = new WebSocket(strURL)
+const { Console } = require('console');
+
+
+const strURL = 'wss://' + strPortal + '/event/' + strLanguage + '/' + btoa(strUser + ":" + strPasswod);
+const oWS = new WebSocket(strURL);
+console.log(`***Agent Service Startup***`);
 oWS.onopen = (evt) => {
-    insertData('WebSocket Connection open ...')
+    insertData('WebSocket Connection open ...');
 }
 oWS.onmessage = (evt) => {
-    receiveData(evt.data)
+    receiveData(evt.data);
 }
 oWS.onclose = (evt) => {
-    insertData('DeviceOn WebSocket Connection closed.')
+    insertData('[!!!]DeviceOn WebSocket Connection closed.');
 }
 const insertData = (strData) => {
-    console.log(strData)
+    console.log(strData);
 }
 const receiveData = (strData) => {
     let jsonData = {};
     try {
-        jsonData = JSON.parse(strData)
+        jsonData = JSON.parse(strData);
+        //console.log(jsonData);
     } catch {
     }
     // if (jsonData.event[0].subtype==='SET_DEVICE_SENSOR_VALUE')
     //console.log(jsonData)
     let evtAry = jsonData.events;
     evtAry.map((item) => {
-        //    console.log(item);
-        tranData(item);
-        // (item.severity_desc === 'Error'&&item.agent_name!=="ARK-1124_Homer_test") ? tranData(item) : '';
+        //console.log(item);
+        //tranData(item);
+        (item.severity_desc === 'Error' && item.agent_name !== "ARK-1124_Homer_test") ? tranData(item) : '';
     })
 }
-console.log(`***Agent Service Startup***`);
+
 const getDate = () => {
     var Today = new Date();
     var yyyy = Today.getFullYear().toString();
@@ -84,10 +91,12 @@ const tranData = async (data) => {
         "priority": 1, //int, 要求时限
         "timestamp": 1567650600 //int64, 时间标记
     }
-
-    const regex = RegExp('Mute Switch');////////EVENT///////////////////
+    console.log(`*****prepare Send Data*******`);
+    console.log(fixData);
+    console.log(`************`);
+    
     if (regex.test(data.message)) {
-        console.log('\nmatch-event:', data.message)
+        console.log('\n[V]match-event:', data.message);
         axios({
             headers: { 'Passport': `${userInfo.Passport}` },
             method: 'POST',
@@ -99,6 +108,6 @@ const tranData = async (data) => {
             console.log(err)
         })
     } else {
-        console.log('\nnon-match-event:', data.message)
+        console.log('\n[!]non-match-event:', data.message)
     }
 }
