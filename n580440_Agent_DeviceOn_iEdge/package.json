@@ -1,0 +1,14 @@
+{
+  "name": "n580440_agent_deviceon",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon index.js"
+  },
+  "dependencies": {
+    "axios": "^0.20.0",
+    "btoa": "^1.2.1",
+    "ws": "^7.3.1"
+  }
+}
